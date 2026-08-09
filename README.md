@@ -4,12 +4,12 @@ This repository contains three independent reinforcement learning experiments co
 
 ## Contents
 
-- `2026-08-06 lunar_lander_dqn.py`: DQN training for `LunarLander-v3`
-- `2026-08-06 lunar_lander_dqn.pth`: saved LunarLander model weights
-- `2026-08-08 reinforce_pendulum.py`: REINFORCE training for `Pendulum-v1`
-- `2026-08-08 pendulum_reinforce_best.pth`: best REINFORCE policy weights
-- `2026-08-08 pendulum_reinforce_final.pth`: final REINFORCE policy weights
-- `2026-08-09 pendulum_rl_benchmark.py`: benchmark script comparing Pendulum RL methods
+- `2026-08-06_lunar_lander_dqn.py`: DQN training for `LunarLander-v3`
+- `2026-08-06_lunar_lander_dqn.pth`: saved LunarLander model weights
+- `2026-08-08_reinforce_pendulum.py`: REINFORCE training for `Pendulum-v1`
+- `2026-08-08_pendulum_reinforce_best.pth`: best REINFORCE policy weights
+- `2026-08-08_pendulum_reinforce_final.pth`: final REINFORCE policy weights
+- `2026-08-09_pendulum_rl_benchmark.py`: benchmark script comparing Pendulum RL methods
 - `requirements.txt`: Python dependencies
 - `.gitignore`: ignore Python caches, environments, and editor files
 
@@ -32,19 +32,19 @@ pip3 install -r requirements.txt
 Run the LunarLander DQN script:
 
 ```bash
-python3 '2026-08-06 lunar_lander_dqn.py'
+python3 2026-08-06_lunar_lander_dqn.py
 ```
 
 Run the Pendulum REINFORCE script:
 
 ```bash
-python3 '2026-08-08 reinforce_pendulum.py'
+python3 2026-08-08_reinforce_pendulum.py
 ```
 
 Run the Pendulum benchmark script:
 
 ```bash
-python3 '2026-08-09 pendulum_rl_benchmark.py'
+python3 2026-08-09_pendulum_rl_benchmark.py
 ```
 
 ## Notes
