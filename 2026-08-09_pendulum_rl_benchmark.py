@@ -50,7 +50,11 @@ def save_csv(filepath, headers, rows):
 
 
 def plot_mean_std(x, datas, labels, filepath, title, xlabel='Episode', ylabel='Return'):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(12, 7))
+    
+    all_values = []
+    plot_data = []
+    
     for label, series in zip(labels, datas):
         if isinstance(series, np.ndarray):
             if series.ndim == 1:
@@ -66,34 +70,68 @@ def plot_mean_std(x, datas, labels, filepath, title, xlabel='Episode', ylabel='R
             if arr.ndim == 0:
                 arr = arr.reshape(1)
             arrays.append(arr)
+            all_values.extend(arr.tolist())
 
-        lengths = [arr.shape[0] for arr in arrays]
-        if len(set(lengths)) != 1:
-            raise ValueError(f'All series for {label} must have the same length. Got lengths {lengths}')
-        stacked = np.stack(arrays, axis=0)
+        # Pad arrays to same length
+        max_len = max(len(arr) for arr in arrays)
+        padded = []
+        for arr in arrays:
+            if len(arr) < max_len:
+                padded_arr = np.pad(arr, (0, max_len - len(arr)), mode='edge')
+            else:
+                padded_arr = arr[:max_len]
+            padded.append(padded_arr)
+        
+        stacked = np.stack(padded, axis=0)
         mean = np.mean(stacked, axis=0)
         std = np.std(stacked, axis=0)
-        plt.plot(x[: mean.shape[0]], mean, label=label)
+        plot_data.append((label, mean, std))
+    
+    # Plot with consistent axis scaling
+    for label, mean, std in plot_data:
+        plt.plot(x[: mean.shape[0]], mean, label=label, linewidth=2.5, marker='o', 
+                 markersize=4, markevery=max(1, mean.shape[0]//20))
         plt.fill_between(x[: mean.shape[0]], mean - std, mean + std, alpha=0.2)
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.legend()
-    plt.grid(alpha=0.3)
+    
+    # Set y-axis limits with padding
+    if all_values:
+        all_values = np.array(all_values)
+        global_min = np.nanmin(all_values)
+        global_max = np.nanmax(all_values)
+        value_range = global_max - global_min
+        padding = value_range * 0.1
+        plt.ylim(global_min - padding, global_max + padding)
+    
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.xlabel(xlabel, fontsize=12)
+    plt.ylabel(ylabel, fontsize=12)
+    plt.legend(loc='best', fontsize=10)
+    plt.grid(alpha=0.3, linestyle='--')
     plt.tight_layout()
-    plt.savefig(filepath)
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
     plt.close()
 
 
 def plot_bar(values, errors, labels, filepath, title, ylabel='Return'):
     plt.figure(figsize=(10, 6))
     x = np.arange(len(labels))
-    plt.bar(x, values, yerr=errors, capsize=6)
-    plt.xticks(x, labels, rotation=15, ha='right')
-    plt.title(title)
-    plt.ylabel(ylabel)
+    colors = plt.cm.Set3(np.linspace(0, 1, len(labels)))
+    bars = plt.bar(x, values, yerr=errors, capsize=8, color=colors, edgecolor='black', 
+                   linewidth=1.5, alpha=0.8)
+    plt.xticks(x, labels, rotation=15, ha='right', fontsize=11)
+    plt.title(title, fontsize=14, fontweight='bold')
+    plt.ylabel(ylabel, fontsize=12)
+    plt.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # Add value labels on bars
+    for bar, val in zip(bars, values):
+        height = bar.get_height()
+        plt.text(bar.get_x() + bar.get_width()/2., height,
+                f'{val:.1f}',
+                ha='center', va='bottom' if height > 0 else 'top', fontsize=9)
+    
     plt.tight_layout()
-    plt.savefig(filepath)
+    plt.savefig(filepath, dpi=150, bbox_inches='tight')
     plt.close()
 
 
