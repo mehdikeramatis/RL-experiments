@@ -461,6 +461,7 @@ def run_discrete_value(env_name, seed, config, save_dir=None):
     env_steps = 0
 
     for episode in range(config['episodes']):
+        print(f"[DiscreteValue, seed={seed}] Episode {episode + 1}/{config['episodes']}", end='\r')
         state, _ = env.reset(seed=seed + episode)
         total_reward = 0.0
         actions = []
@@ -503,6 +504,7 @@ def run_reinforce(env_name, seed, config, save_dir=None):
     env_steps = 0
 
     for episode in range(config['episodes']):
+        print(f"[REINFORCE, seed={seed}] Episode {episode + 1}/{config['episodes']}", end='\r')
         state, _ = env.reset(seed=seed + episode)
         log_probs = []
         rewards = []
@@ -545,6 +547,7 @@ def run_actor_critic(env_name, seed, config, save_dir=None):
     env_steps = 0
 
     for episode in range(config['episodes']):
+        print(f"[ActorCritic, seed={seed}] Episode {episode + 1}/{config['episodes']}", end='\r')
         state, _ = env.reset(seed=seed + episode)
         log_probs = []
         values = []
@@ -599,6 +602,7 @@ def run_ppo(env_name, seed, config, save_dir=None):
     episode_critic_losses = []
 
     for episode in range(config['episodes']):
+        print(f"[PPO, seed={seed}] Episode {episode + 1}/{config['episodes']}", end='\r')
         state, _ = env.reset(seed=seed + episode)
         done = False
         episode_rewards.append(0.0)
@@ -660,6 +664,7 @@ def run_sac(env_name, seed, config, save_dir=None):
     env_steps = 0
 
     for episode in range(config['episodes']):
+        print(f"[SAC, seed={seed}] Episode {episode + 1}/{config['episodes']}", end='\r')
         state, _ = env.reset(seed=seed + episode)
         total_reward = 0.0
         actions = []
@@ -717,14 +722,24 @@ def experiment(config):
     aggregated_returns = defaultdict(list)
     final_returns = []
     final_labels = []
+    total_methods = len(methods)
+    total_seeds = len(config['seeds'])
+    total_work = total_methods * total_seeds
+    current_work = 0
 
-    for method_name, runner in methods:
+    for method_idx, (method_name, runner) in enumerate(methods):
         all_returns = []
         all_steps = []
         final_seed_returns = []
-        for seed in config['seeds']:
+        for seed_idx, seed in enumerate(config['seeds']):
+            current_work += 1
+            print(f"\n{'='*80}")
+            print(f"Progress: {current_work}/{total_work} (Method {method_idx + 1}/{total_methods}, Seed {seed_idx + 1}/{total_seeds})")
+            print(f"Training {method_name.upper()} with seed {seed}...")
+            print(f"{'='*80}")
             set_seed(seed)
             result_rows = runner(config['env_name'], seed, config, save_dir=model_dir)
+            print()  # New line after progress output
             file_path = os.path.join(raw_dir, f'{method_name}_seed{seed}.csv')
             headers = ['episode', 'return', 'length', 'env_steps', 'action_mean', 'action_std', 'entropy', 'actor_loss', 'critic_loss', 'extra']
             save_csv(file_path, headers, result_rows)
